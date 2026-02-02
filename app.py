@@ -17,8 +17,9 @@ params = {
     'INTERNET INTERURBANO FIBRA': {'A': 65.20, 'n': 0.45, 'C': 0.85},
     'INTERNET INTERURBANO RF':    {'A': 180.00, 'n': 0.95, 'C': 5.50},
     'TRANSPORTE URBANO FIBRA':    {'A': 28.50, 'n': 0.42, 'C': 0.55},
-    'TRANSPORTE URBANO RF':       {'A': 120.00, 'n': 0.85, 'C': 1.15}, # ¡AQUÍ ESTÁ!
-    'TRANSPORTE INTERURBANO FIBRA (360Net)': {'A': 35.00, 'n': 0.45, 'C': 0.20}
+    'TRANSPORTE URBANO RF':       {'A': 120.00, 'n': 0.85, 'C': 1.15},
+    'TRANSPORTE INTERURBANO FIBRA': {'A': 35.00, 'n': 0.45, 'C': 0.20},
+    'TRANSPORTE INTERURBANO RF':  {'A': 150.00, 'n': 0.88, 'C': 3.50} 
 }
 
 # --- INTERFAZ ---
