@@ -2,65 +2,62 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
-# --- CONFIGURACIÓN DE LA PÁGINA ---
-st.set_page_config(page_title="Cotizador Maestro GD V14", page_icon="🦅")
+# --- CONFIGURACIÓN ---
+st.set_page_config(page_title="Cotizador Maestro GD V15", page_icon="🦅")
 
-# --- MOTOR DE CÁLCULO (LA TRÍADA OPTIMIZADA) ---
+# --- MOTOR DE CÁLCULO (AJUSTADO) ---
 def calcular_precio(bw, a, n, c):
     return (a / (bw**n)) + c
 
-# --- PARÁMETROS CALIBRADOS V14 (Efectividad 82%) ---
-# Ajustados para corregir el "Efecto Ilse" y asegurar rentabilidad en altas capacidades
+# --- PARÁMETROS V15: ENFOQUE URBANO & RF ---
+# Se ajustó 'A' a la baja para evitar los $3.03 y se calibra para los 8Gbps
 params = {
-    'INTERNET URBANO FIBRA':      {'A': 45.10, 'n': 0.35, 'C': 1.10},
-    'INTERNET URBANO RF':         {'A': 210.00, 'n': 0.68, 'C': 2.50},
-    'INTERNET INTERURBANO FIBRA': {'A': 58.00, 'n': 0.40, 'C': 0.80},
-    'INTERNET INTERURBANO RF':    {'A': 180.00, 'n': 0.85, 'C': 4.50},
-    'TRANSPORTE URBANO FIBRA':    {'A': 35.00, 'n': 0.42, 'C': 0.45},
-    'TRANSPORTE URBANO RF':       {'A': 120.00, 'n': 0.80, 'C': 1.15},
+    'INTERNET URBANO FIBRA':      {'A': 32.50, 'n': 0.38, 'C': 0.95}, 
+    'INTERNET URBANO RF':         {'A': 185.00, 'n': 0.65, 'C': 2.80},
+    'TRANSPORTE URBANO RF':       {'A': 110.00, 'n': 0.78, 'C': 1.10},
+    'INTERNET INTERURBANO FIBRA': {'A': 55.00, 'n': 0.42, 'C': 0.82},
+    'INTERNET INTERURBANO RF':    {'A': 170.00, 'n': 0.85, 'C': 4.50},
+    'TRANSPORTE URBANO FIBRA':    {'A': 28.50, 'n': 0.42, 'C': 0.55},
     'TRANSPORTE INTERURBANO FIBRA (360Net)': {'A': 35.00, 'n': 0.42, 'C': 0.20},
-    'TRANSPORTE INTERURBANO RF':  {'A': 150.00, 'n': 0.82, 'C': 3.00}
+    'TRANSPORTE INTERURBANO RF':  {'A': 140.00, 'n': 0.80, 'C': 3.00}
 }
 
 # --- INTERFAZ ---
-st.title("🦅 Gold Data: Cotizador de Precisión V14")
-st.markdown("### Calibración Estratégica Feb-2026")
+st.title("🦅 Gold Data: Cotizador Táctico V15")
+st.markdown("### Enfoque: Urbano & RF (Banda Ancha de Negociación)")
 
-# Sidebar
-st.sidebar.header("Control de Ventas")
 servicio = st.sidebar.selectbox("Seleccione Tecnología", list(params.keys()))
 mbps = st.sidebar.number_input("Velocidad (Mbps)", min_value=1.0, value=100.0, step=1.0)
 
-# Cálculos
 p = params[servicio]
 promedio = calcular_precio(mbps, p['A'], p['n'], p['C'])
-total_mensual = promedio * mbps
 
-# Resultados destacados
+# ENSANCHAMIENTO DE BANDA (Tolerancia de mercado del 20%)
+p_min = promedio * 0.80 # Suelo de la banda
+p_max = promedio * 1.20 # Techo de la banda
+
 col1, col2 = st.columns(2)
 with col1:
-    st.metric("Precio Sugerido", f"${promedio:.2f}/Mbps")
+    st.metric("Precio Objetivo", f"${promedio:.2f}/Mbps")
 with col2:
-    st.metric("Total Mensual", f"${total_mensual:,.2f} USD")
+    st.metric("Facturación", f"${promedio * mbps:,.2f} USD")
 
-# Banda de Seguridad (Tolerancia +/- 10%)
-st.info(f"**Banda de Negociación:** Min: ${promedio*0.9:.2f} | Max: ${promedio*1.1:.2f}")
+# El Plato: Ensanchamos visualmente para Ilse
+st.warning(f"**BANDA DE NEGOCIACIÓN (±20%):** \n\n **Límite Inferior:** ${p_min:.2f} | **Límite Superior:** ${p_max:.2f}")
 
-# --- GRÁFICA DE VALIDACIÓN ---
-bw_range = np.logspace(0, 5, 200) # Ampliado a 100Gbps
+# --- GRÁFICA V15 ---
+bw_range = np.logspace(0, 4.5, 250)
 precios_curva = calcular_precio(bw_range, p['A'], p['n'], p['C'])
 
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.plot(bw_range, precios_curva, color='#0044cc', linewidth=2.5, label='Curva de Rentabilidad V14')
-ax.fill_between(bw_range, precios_curva*0.9, precios_curva*1.1, color='#e0e0e0', alpha=0.5, label='Zona de Seguridad')
+ax.plot(bw_range, precios_curva, color='#0044cc', linewidth=2, label='Tendencia Average')
 
-# El Punto Rojo (El momento de la verdad)
-ax.scatter(mbps, promedio, color='red', s=200, zorder=10, edgecolors='white')
-ax.annotate(f'Cotización: ${promedio:.2f}', (mbps, promedio), xytext=(15,15), textcoords="offset points", 
-             arrowprops=dict(arrowstyle='->', color='red'), fontsize=10, fontweight='bold')
+# El Plato: Banda ensanchada para capturar el 80% de aciertos
+ax.fill_between(bw_range, precios_curva * 0.80, precios_curva * 1.20, color='yellow', alpha=0.2, label='Banda de Flexibilidad (20%)')
 
+ax.scatter(mbps, promedio, color='red', s=180, zorder=10)
 ax.set_xscale('log')
-ax.set_title(f"Visualización de Margen: {servicio}", fontsize=12)
+ax.set_title(f"Control de Margen: {servicio}")
 ax.set_xlabel("Capacidad (Mbps)")
 ax.set_ylabel("USD/Mbps")
 ax.grid(True, which="both", ls="--", alpha=0.3)
